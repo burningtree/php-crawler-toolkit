@@ -14,7 +14,7 @@ Web crawler (for nakup.itesco.cz)
 
 ## SYSTEM REQUIREMENTS
 
-- PHP 5.3+
+- PHP 5.4+
 - php-curl
 - [php-msgpack](https://github.com/msgpack/msgpack-php) (optional)
 

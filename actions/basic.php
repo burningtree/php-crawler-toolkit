@@ -28,7 +28,8 @@ class Action_Basic {
     else
     {
       $format = 'json';
-      $content = json_encode($data, $stdout ? JSON_PRETTY_PRINT : NULL);
+      $json_flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+      $content = json_encode($data, $stdout ? $json_flags | JSON_PRETTY_PRINT : $json_flags);
     }
 
     if($output_file)
