@@ -1,0 +1,106 @@
+#!/usr/local/bin/php
+<?
+
+// process CLI options
+$opts = getopt("vc:i:o:a:", array("debug", "ttl:", "reparse", "class:"));
+
+// load config JSON file
+$config_path = './config/config.json';
+if(!file_exists($config_path))
+{
+  throw new Exception('No config file: '.$config_path);
+}
+$config = json_decode(file_get_contents($config_path));
+if(!$config)
+{
+  throw new Exception('Cannot decode config file: '.$config_path);
+}
+
+// pass opts to config object
+$config->opts = $opts;
+
+// base option -- class
+$class = "tesco";
+if(isset($opts['class']) && !empty($opts['class']))
+{
+  $class = $opts['class'];
+}
+
+// load class
+require('classes/'.$class.'.php');
+$tesco = new $class;
+
+// option -- debugging
+if(isset($opts["v"]) || isset($opts["debug"]))
+{
+  $tesco->debug = TRUE;
+  $tesco->debug("Debugging enabled.");
+}
+
+// option -- reparsing
+if(isset($opts['reparse']))
+{
+  $tesco->reparse = TRUE;
+}
+
+// option -- TTL override
+if(isset($opts['ttl']))
+{
+  $tesco->cache_ttl = $opts['ttl'];
+}
+
+// option -- sleep
+if(isset($opts['i']) && !empty($opts['i']))
+{
+  $tesco->curl_sleep = $opts['i'];
+}
+
+// option -- type
+$type = NULL;
+if(isset($opts['c']) && !empty($opts['c']))
+{
+  $type = $opts['c'];
+}
+
+// print debug info
+$tesco->debug(sprintf("Cache TTL: %ds", $tesco->cache_ttl));
+$tesco->debug(sprintf("Interval: %fs", $tesco->curl_sleep));
+$tesco->debug(sprintf("Using collection: %s", $type));
+$tesco->debug("Downloading collection ..");
+
+// option -- action name
+$action_name = $opts['a'];
+
+// set default action name if empty
+$action_name = empty($action_name) ? "basic" : $action_name;
+
+// load action
+$tesco->debug(sprintf("Loading action: %s", $action_name));
+require_once('actions/'.$action_name.'.php');
+$action_class_name = 'Action_'.$action_name;
+$act = new $action_class_name;
+
+$tesco->debug(sprintf("Running action: %s [%s]", $action_name, empty($type) ? 'run()' : 'collection'));
+
+// collection action
+if(!empty($type))
+{
+  // load collection
+  $dataset = $tesco->get_collection($type);
+  $data = $dataset['items'];
+
+  // run
+  $act->run_collection($tesco, $data, $table, $type, $config);
+}
+
+// other actions via run() method
+else
+{
+  // run
+  $act->run($tesco, $config);
+}
+$tesco->debug(sprintf("End action: %s [%s]", $action_name, empty($type) ? 'run()' : 'collection'));
+
+// Fine.
+$tesco->debug("Done.");
+

@@ -1,0 +1,8 @@
+{
+  "mysql": {
+    "host": "127.0.0.1",
+    "user": "USER",
+    "pass": "PASSWORD",
+    "db": "MY_DATABASE"
+  }
+}
