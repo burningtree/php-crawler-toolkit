@@ -47,6 +47,7 @@ $ ./crawler -c <collection> -o outputfile.json
 Crawl to MySQL database:
 ```bash
 $ ./crawler -c <collection> -a mysql_simple
+```
 
 Print JSON output of scraping archive of PotravinyNaPranyri.cz:
 ```bash
